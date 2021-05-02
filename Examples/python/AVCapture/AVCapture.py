@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import platform
 import sys
 from ctypes import *
@@ -19,8 +21,8 @@ from MWControlWidget import *
 
 CAPTURE_WIDTH            = 1920
 CAPTURE_HEIGHT           = 1080
-CAPTURE_FOURCC           = MWFOURCC_NV12
-# CAPTURE_FOURCC           = MWFOURCC_BGR24
+# CAPTURE_FOURCC           = MWFOURCC_NV12
+CAPTURE_FOURCC           = MWFOURCC_BGR24
 
 CAPTURE_CHANNEL          = 2
 CAPTURE_SAMPLE_RATE      = 48000
@@ -152,10 +154,10 @@ class AVCaptureWid(QtWidgets.QMainWindow):
                 output = True)
         self.m_pyaudio_stream.start_stream()
 
-        self.m_video_render = CRenderWid(self)
-        self.m_video_render.move(0,0)
-        self.m_video_render.resize(self.width(),self.height())
-        
+        # self.m_video_render = CRenderWid(self)
+        self.m_video_render = QRenderWidget(self)
+        self.m_video_render.move(0, 0)
+        self.m_video_render.resize(self.width(), self.height())
 
         self.m_menubar = self.menuBar()
 
@@ -189,19 +191,25 @@ class AVCaptureWid(QtWidgets.QMainWindow):
         self.m_menubar.addMenu(self.m_menu_device)
         self.m_menu_device.triggered.connect(self.slot_device_selected)
 
-        # ctrlWidget = MWControlWidget(self.m_capture)
-        # # ctrlWidget.show()
-        # hbox = QtWidgets.QVBoxLayout()
-        # hbox.addWidget(self.m_video_render)
-        # hbox.addWidget(ctrlWidget)
-        # widget = QtWidgets.QWidget()
-        # widget.setLayout(hbox)
-        # self.setCentralWidget(widget)
+        ctrlWidget = MWControlWidget(self.m_capture)
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.addWidget(self.m_video_render)
+        vbox.addWidget(ctrlWidget)
+        qpb_save = QPushButton("Save Image")
+        qpb_save.clicked.connect(self.slot_button_save)
+        vbox.addWidget(qpb_save)
+        widget = QtWidgets.QWidget()
+        widget.setLayout(vbox)
+        self.setCentralWidget(widget)
 
     def slot_button_save(self):
         print("Saving image")
+        import subprocess
         frm = self.m_capture.get_video_current_frame()
-        print(frm)
+        cvimg = np.frombuffer(frm.raw, dtype=np.uint8).reshape(self.CAPTURE_HEIGHT, self.CAPTURE_WIDTH, 3)
+        file_img = "tmp_{}.png".format(time.strftime("%Y%m%d%H%M%S"))
+        cv2.imwrite(file_img, cvimg)
+        subprocess.Popen(["python3", "ShowImage.py", file_img])
 
     def slot_device_selected(self,select_action):
         print(select_action.text())

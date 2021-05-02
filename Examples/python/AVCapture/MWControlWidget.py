@@ -1,5 +1,7 @@
 from PyQt5 import QtWidgets,QtCore,QtGui
 from LibMWCapture import *
+import numpy as np
+import cv2
 
 class QRenderWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -9,12 +11,20 @@ class QRenderWidget(QtWidgets.QWidget):
         vbox.addWidget(self.img_frame)
         self.setLayout(vbox)
 
+    def open_render(self, fourcc, width, height):
+        self.m_width = width
+        self.m_height = height
+        self.m_fourcc = fourcc
+        print("fourcc = {}, width = {}, height{}".format(fourcc, width, height))
+
     def put_frame(self, pbframe):
-        self.m_data = pbframe #copy.deepcopy(pbframe)
-        qimg = QtGui.QImage(pbframe.data,
-                            pbframe.shape[1],
-                            pbframe.shape[0],
-                            QtGui.QImage.Format_BGR888)
+        # self.m_data = pbframe #copy.deepcopy(pbframe)
+        cvimg_raw = np.frombuffer(pbframe.raw, dtype=np.uint8).reshape(self.m_height, self.m_width, 3)
+        cvimg = cv2.resize(cvimg_raw, None, fx=0.5, fy=0.5)
+        qimg = QtGui.QImage(cvimg.data,
+                            cvimg.shape[1],
+                            cvimg.shape[0],
+                            QtGui.QImage.Format_RGB888).rgbSwapped()
         self.img_frame.setPixmap(QtGui.QPixmap.fromImage(qimg))
         self.update()
 
@@ -80,10 +90,11 @@ class MWControlWidget(QtWidgets.QWidget):
 
         self.qpb_reset = QtWidgets.QPushButton("Reset Default")
         self.qpb_reset.clicked.connect(self.slot_button_reset)
-        qpb_save = QtWidgets.QPushButton("Save Image")
-        qpb_save.clicked.connect(self.slot_button_save)
         vbox.addWidget(self.qpb_reset)
-        vbox.addWidget(qpb_save)
+
+        # qpb_save = QtWidgets.QPushButton("Save Image")
+        # qpb_save.clicked.connect(self.slot_button_save)
+        # vbox.addWidget(qpb_save)
         self.setLayout(vbox)
 
     def slot_pixel_contrast(self, value):
@@ -144,12 +155,6 @@ class MWControlWidget(QtWidgets.QWidget):
         self.qcb_color_fmt.setCurrentText("Unknown")
         self.qcb_quantization_range.setCurrentText("Unknown")
         self.qcb_saturation_range.setCurrentText("Unknown")
-
-    def slot_button_save(self):
-        print("Saving image")
-        frm = self.capture.get_video_current_frame()
-        import ipdb; ipdb.set_trace()
-        print(frm)
 
 if __name__ == '__main__':
     import sys
