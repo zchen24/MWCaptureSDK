@@ -7,7 +7,7 @@
 QT       += core gui\
             opengl
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = ../../../../bin/AVCaptureQuad
 TEMPLATE = app
@@ -36,8 +36,6 @@ LIBS        +=  ../../../../Lib/x64/libMWCapture.a\
                 -ludev\
                 -lasound
 }
-
-
 
 SOURCES += main.cpp\
         mainwindow.cpp \

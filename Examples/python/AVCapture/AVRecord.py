@@ -62,7 +62,6 @@ class AVRecord(object):
 
     def write_video(self, data, len, timestamp):
         AVEncoder.mw_video_encode_frame(self.m_video_enc_handle, data, timestamp)
-
         
     def write_audio(self, data, len, timestamp):
         AVEncoder.mw_audio_encode_frame(self.m_audio_enc_handle, data, len, timestamp)

@@ -26,3 +26,5 @@ sh gen_shared.sh
 
 4.run example without sudo
 copy /Lib/189-usbdev.rules to dir /etc/udev/rules.d
+
+Version 3.3.1.1313

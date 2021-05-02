@@ -1,6 +1,7 @@
 TARGET = libMWCapturePy.so libMWMp4Py.so libMWAVEncoderPy.so
 
 VOAAC_PATH = ../../../../3rdpart/voaac
+X264_PATH = ../../../../3rdpart/x264
 
 CC = gcc
 CXX = g++
@@ -48,9 +49,11 @@ endif
 endif
 CLIB=-lpthread -ldl -ludev -lasound -lv4l2
 GPUENC_LIB = -lva -lva-drm -lx264 -lresolv
+# GPUENC_LIB = -lva -lva-drm -lresolv
 MWCAPTURELIB=../../../../Lib/$(ARCH)/libMWCapture.a
 MWMP4LIB=../../../../Lib/$(ARCH)/libmw_mp4.a
 USBLIB=../../../../3rdpart/libusb/lib/linux/$(ARCH)/libusb-1.0.a
+
 
 
 VOAAC_OBJS = $(VOAAC_PATH)/basic_op/basicop2.o $(VOAAC_PATH)/basic_op/oper_32b.o \

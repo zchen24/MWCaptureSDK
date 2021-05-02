@@ -5,7 +5,7 @@ MWCapture = CDLL('./c_libs/libMWCapturePy.so')
 def MAKE_MWFOURCC(a,b,c,d):
     return ord(a[0]) + (ord(b[0]) << 8) + (ord(c[0]) << 16) + (ord(d[0]) << 24)
 
-MWFOURCC_UNKs        = MAKE_MWFOURCC('0', '1', '2', '3')
+MWFOURCC_UNKs       = MAKE_MWFOURCC('0', '1', '2', '3')
 MWFOURCC_UNK        = MAKE_MWFOURCC('U', 'N', 'K', 'N')
 MWFOURCC_GREY       = MAKE_MWFOURCC('G', 'R', 'E', 'Y')					
 MWFOURCC_Y800       = MAKE_MWFOURCC('Y', '8', '0', '0')

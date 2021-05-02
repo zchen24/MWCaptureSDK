@@ -106,13 +106,16 @@ class CRenderWid(QOpenGLWidget):
         glViewport(0,0,x,y)
 
     def open_render(self,fourcc,cx,cy):
-        
         self.abolish_render()
         t_b_ret = False
         if fourcc == MWFOURCC_YUY2:
             t_b_ret = self.setup_render_for_yuy2(cx,cy)
         elif fourcc == MWFOURCC_NV12:
             t_b_ret = self.setup_render_for_nv12(cx,cy)
+        else:
+            print("==============================")
+            print(" Error, FOURCC not supported ")
+            print("==============================")
         if t_b_ret == True:
             self.m_fourcc = fourcc
             self.m_cx = cx

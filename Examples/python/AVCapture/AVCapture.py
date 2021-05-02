@@ -15,10 +15,12 @@ import time
 from Capture import *
 from VideoRenderGl import *
 from AVRecord import *
+from MWControlWidget import *
 
 CAPTURE_WIDTH            = 1920
 CAPTURE_HEIGHT           = 1080
 CAPTURE_FOURCC           = MWFOURCC_NV12
+# CAPTURE_FOURCC           = MWFOURCC_BGR24
 
 CAPTURE_CHANNEL          = 2
 CAPTURE_SAMPLE_RATE      = 48000
@@ -69,7 +71,7 @@ def video_play_thread(param):
     param.m_prev_audio_encode_frames = param.m_audio_encode_frames
 
     while(param.m_capturing):
-        print_fps(param)
+        # print_fps(param)
         video_frame = param.m_capture.get_video_play()
         if 0 == video_frame:
             time.sleep(0.005)
@@ -114,7 +116,7 @@ def av_record_thread(param,file_name):
     param.m_video_encode_frames = 0
     param.m_audio_encode_frames = 0
         
-    
+
 
 class AVCaptureWid(QtWidgets.QMainWindow):
     def __init__(self, parent=None, flags=QtCore.Qt.WindowFlags()):
@@ -164,6 +166,10 @@ class AVCaptureWid(QtWidgets.QMainWindow):
         self.m_menu_stop_act = QAction("Stop Record", self)
         self.m_menu_file.addAction(self.m_menu_stop_act)
         self.m_menu_stop_act.setEnabled(False)
+        self.m_menu_save_act = QAction("Save Image", self)
+        self.m_menu_file.addAction(self.m_menu_save_act)
+        self.m_menu_save_act.setEnabled(True)
+        self.m_menu_save_act.triggered.connect(self.slot_button_save)
         self.m_menubar.addMenu(self.m_menu_file)
         self.m_menu_file.triggered.connect(self.slot_file_selected)
 
@@ -182,8 +188,20 @@ class AVCaptureWid(QtWidgets.QMainWindow):
 
         self.m_menubar.addMenu(self.m_menu_device)
         self.m_menu_device.triggered.connect(self.slot_device_selected)
-        
 
+        # ctrlWidget = MWControlWidget(self.m_capture)
+        # # ctrlWidget.show()
+        # hbox = QtWidgets.QVBoxLayout()
+        # hbox.addWidget(self.m_video_render)
+        # hbox.addWidget(ctrlWidget)
+        # widget = QtWidgets.QWidget()
+        # widget.setLayout(hbox)
+        # self.setCentralWidget(widget)
+
+    def slot_button_save(self):
+        print("Saving image")
+        frm = self.m_capture.get_video_current_frame()
+        print(frm)
 
     def slot_device_selected(self,select_action):
         print(select_action.text())
@@ -219,7 +237,9 @@ class AVCaptureWid(QtWidgets.QMainWindow):
             select_action.setChecked(True)
 
     def slot_file_selected(self,select_action):
-        if self.m_is_recording:
+        if select_action.text() == "Save Image":
+            self.slot_button_save()
+        elif self.m_is_recording:
             print("stop recording")
             self.m_is_recording = 0
             self.m_av_record_tid.join()
@@ -252,10 +272,10 @@ class AVCaptureWid(QtWidgets.QMainWindow):
             self.m_menu_start_act.setEnabled(False)
             self.m_menu_stop_act.setEnabled(True)
 
-
     def __del__(self):
         print("exit")
         self.m_pyaudio_stream.stop_stream()
+
     def closeEvent(self,event):
         if self.m_is_recording:
             print("stop recording")
@@ -266,6 +286,7 @@ class AVCaptureWid(QtWidgets.QMainWindow):
             self.m_video_play_tid.join()
             self.m_audio_play_tid.join()
             self.m_capture.stop_capture()
+
     def parse_cmd(self, argv):
         print("Usage:\npython AVCapture.py [-width 1920] [-height 1080] [-sample_rate 48000]\n")
         index = 0
@@ -278,7 +299,7 @@ class AVCaptureWid(QtWidgets.QMainWindow):
                 print("set width to", self.CAPTURE_WIDTH)
             elif argv[i] == "-height":
                 self.CAPTURE_HEIGHT = int(argv[i+1])
-                print("set hight to", self.CAPTURE_HEIGHT)
+                print("set height to", self.CAPTURE_HEIGHT)
             elif argv[i] == "-sample_rate":
                 self.CAPTURE_SAMPLE_RATE = int(argv[i+1])
                 print("set sample rate to",self.CAPTURE_SAMPLE_RATE)

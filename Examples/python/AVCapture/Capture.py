@@ -1,6 +1,7 @@
 from ctypes import *
 from LibMWCapture import *
 import threading
+import copy
 
 VIDEO_FRAME_NUM          = 4
 AUDIO_FRAME_NUM          = 500
@@ -145,10 +146,39 @@ def pro_video_capture(param):
                 mode = MWCAP_VIDEO_DEINTERLACE_BOTTOM_FIELD
         else:
             mode = MWCAP_VIDEO_DEINTERLACE_BLEND
+        # ret = MWCapture.MWCaptureVideoFrameToVirtualAddressEx(param.m_channel_handle,
+        #     video_buffer_info.iNewestBufferedFullFrame,
+        #     param.m_video_frame[param.m_vfw_index],
+        #     param.m_video_frame_size,
+        #     param.m_min_stride,
+        #     0,
+        #     0,
+        #     param.m_foucc,
+        #     param.m_width,
+        #     param.m_height,
+        #     0,
+        #     0,
+        #     0,
+        #     0,
+        #     0,
+        #     100,
+        #     0,
+        #     100,
+        #     0,
+        #     mode,
+        #     MWCAP_VIDEO_ASPECT_RATIO_CROPPING,
+        #     0,
+        #     0,
+        #     0,
+        #     0,
+        #     MWCAP_VIDEO_COLOR_FORMAT_UNKNOWN,
+        #     MWCAP_VIDEO_QUANTIZATION_UNKNOWN,
+        #     MWCAP_VIDEO_SATURATION_UNKNOWN)
+
         ret = MWCapture.MWCaptureVideoFrameToVirtualAddressEx(param.m_channel_handle,
             video_buffer_info.iNewestBufferedFullFrame,
-            param.m_video_frame[param.m_vfw_index], 
-            param.m_video_frame_size, 
+            param.m_video_frame[param.m_vfw_index],
+            param.m_video_frame_size,
             param.m_min_stride,
             0,
             0,
@@ -160,19 +190,20 @@ def pro_video_capture(param):
             0,
             0,
             0,
-            100,
-            0,
-            100,
-            0,
-            mode,
+            param.m_contrast,
+            param.m_brightness,
+            param.m_saturation,
+            param.m_hue,
+            param.m_deinterlace_mode,
             MWCAP_VIDEO_ASPECT_RATIO_CROPPING,
             0,
             0,
             0,
             0,
-            MWCAP_VIDEO_COLOR_FORMAT_UNKNOWN,
-            MWCAP_VIDEO_QUANTIZATION_UNKNOWN,
-            MWCAP_VIDEO_SATURATION_UNKNOWN)
+            param.m_color_format,
+            param.m_quantization_range,
+            param.m_saturation_range)
+
         if MW_SUCCEEDED != ret:
             continue
 
@@ -311,6 +342,14 @@ class Capture(object):
         self.m_is_set_audio = 0
         self.m_is_set_video = 0
         self.m_capturing = 0
+        self.m_contrast = 100
+        self.m_brightness = 0
+        self.m_saturation = 100
+        self.m_hue = 0
+        self.m_deinterlace_mode = MWCAP_VIDEO_DEINTERLACE_BLEND
+        self.m_color_format = MWCAP_VIDEO_COLOR_FORMAT_UNKNOWN
+        self.m_quantization_range = MWCAP_VIDEO_QUANTIZATION_UNKNOWN
+        self.m_saturation_range = MWCAP_VIDEO_SATURATION_UNKNOWN
 
     def show_version(self):
         maj = c_ubyte(1)
@@ -361,6 +400,8 @@ class Capture(object):
         while i<VIDEO_FRAME_NUM:
             tm = c_uint64(0)
             self.m_video_time.append(tm)
+            print("frame_size = {}, width = {}, height = {}, fourcc = {}, min_stride = {}".format(
+                self.m_video_frame_size, width, height, foucc, self.m_min_stride))
             data = create_string_buffer(self.m_video_frame_size)
             self.m_video_frame.append(data)
             i = i + 1
@@ -467,3 +508,6 @@ class Capture(object):
 
     def get_audio_capture_frames(self):
         return self.m_afw_num
+
+    def get_video_current_frame(self):
+        return copy.copy(self.m_video_frame[self.m_vfw_index])
