@@ -35,37 +35,46 @@ class MWControlWidget(QtWidgets.QWidget):
         vbox = QtWidgets.QVBoxLayout()
 
         grid = QtWidgets.QGridLayout()
+        self.qlb_contrast = QtWidgets.QLabel("Contrast")
         self.qsl_contrast = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.qsl_contrast.setRange(50, 200)
         self.qsl_contrast.setValue(100)
+        self.slot_pixel_contrast(self.qsl_contrast.value())
         self.qsl_contrast.valueChanged.connect(self.slot_pixel_contrast)
-        grid.addWidget(QtWidgets.QLabel("Contrast"), 0, 0)
+        grid.addWidget(self.qlb_contrast, 0, 0)
         grid.addWidget(self.qsl_contrast, 0, 1)
 
+        self.qlb_brightness = QtWidgets.QLabel("Brightness")
         self.qsl_brightness = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.qsl_brightness.setRange(-100, 100)
         self.qsl_brightness.setValue(0)
+        self.slot_pixel_brightness(self.qsl_brightness.value())
         self.qsl_brightness.valueChanged.connect(self.slot_pixel_brightness)
-        grid.addWidget(QtWidgets.QLabel("Brightness"), 1, 0)
+        grid.addWidget(self.qlb_brightness, 1, 0)
         grid.addWidget(self.qsl_brightness, 1, 1)
 
+        self.qlb_saturation = QtWidgets.QLabel("Saturation")
         self.qsl_saturation = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.qsl_saturation.setRange(0, 200)
         self.qsl_saturation.setValue(100)
+        self.slot_pixel_saturation(self.qsl_saturation.value())
         self.qsl_saturation.valueChanged.connect(self.slot_pixel_saturation)
-        grid.addWidget(QtWidgets.QLabel("Saturation"), 2, 0)
+        grid.addWidget(self.qlb_saturation, 2, 0)
         grid.addWidget(self.qsl_saturation, 2, 1)
 
+        self.qlb_hue = QtWidgets.QLabel("Hue")
         self.qsl_hue = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.qsl_hue.setRange(-90, 90)
         self.qsl_hue.setValue(0)
+        self.slot_pixel_hue(self.qsl_hue.value())
         self.qsl_hue.valueChanged.connect(self.slot_pixel_hue)
-        grid.addWidget(QtWidgets.QLabel("Hue"), 3, 0)
+        grid.addWidget(self.qlb_hue, 3, 0)
         grid.addWidget(self.qsl_hue, 3, 1)
 
         self.qcb_deinterlace = QtWidgets.QComboBox()
         self.qcb_deinterlace.addItems(["Weave", "Blend", "Top", "Bottom"])
         self.qcb_deinterlace.currentTextChanged.connect(self.slot_deinterlace_mode)
+        self.qcb_deinterlace.setCurrentIndex(1)
         grid.addWidget(QtWidgets.QLabel("Deinterlace"), 4, 0)
         grid.addWidget(self.qcb_deinterlace, 4, 1)
 
@@ -98,18 +107,22 @@ class MWControlWidget(QtWidgets.QWidget):
         self.setLayout(vbox)
 
     def slot_pixel_contrast(self, value):
+        self.qlb_contrast.setText("Contrast {:03d}".format(value))
         self.capture.m_contrast = value
         print("slot pixel contrast = {}".format(value))
 
     def slot_pixel_brightness(self, value):
+        self.qlb_brightness.setText("Brightness {:03d}".format(value))
         self.capture.m_brightness = value
         print("slot pixel brightness = {}".format(value))
 
     def slot_pixel_saturation(self, value):
+        self.qlb_saturation.setText("Saturation {:03d}".format(value))
         self.capture.m_saturation = value
         print("slot pixel saturation = {}".format(value))
 
     def slot_pixel_hue(self, value):
+        self.qlb_hue.setText("Hue {:03d}".format(value))
         self.capture.m_hue = value
         print("slot pixel hue = {}".format(value))
 
